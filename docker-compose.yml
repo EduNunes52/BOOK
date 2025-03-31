@@ -1,0 +1,35 @@
+version: '3'
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 2021
+      POSTGRES_DB: book_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  
+  backend:
+    build: 
+      context: ./book-backend/Book
+      dockerfile: Dockerfile
+    working_dir: ./app 
+    command: mvn clean package -DskipTests
+    depends_on:
+      - db
+    volumes:
+      - ./book-backend/Book:/app/Book  # Mapeando o diretório correto
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ./book-frontend
+    ports:
+      - "4200:4200"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
