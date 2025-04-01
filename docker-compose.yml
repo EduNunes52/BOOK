@@ -1,35 +1,30 @@
-version: '3'
+version: '3.8'
 services:
   db:
     image: postgres:15
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 2021
+      POSTGRES_PASSWORD: 123456
       POSTGRES_DB: book_db
     ports:
-      - "5432:5432"
+    - "5433:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
-  
+    - pgdata:/var/lib/postgresql/data
   backend:
-    build: 
-      context: ./book-backend/Book
-      dockerfile: Dockerfile
-    working_dir: ./app 
-    command: mvn clean package -DskipTests
-    depends_on:
-      - db
-    volumes:
-      - ./book-backend/Book:/app/Book  # Mapeando o diretório correto
+    build: ./book-backend/Book
     ports:
       - "8080:8080"
-
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/book_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=123456
   frontend:
     build: ./book-frontend
     ports:
-      - "4200:4200"
+      - "4200:80"
     depends_on:
       - backend
-
 volumes:
   pgdata:
